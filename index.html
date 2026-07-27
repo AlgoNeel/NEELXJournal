@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEELX Journal</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        brand: {
+                            blue: '#0A84FF',
+                            hover: '#0070E0',
+                            bg: '#FBFBFD',
+                            dark: '#000000',
+                            cardLight: '#FFFFFF',
+                            cardDark: '#1C1C1E',
+                            borderLight: '#F2F2F7',
+                            borderDark: '#2C2C2E'
+                        }
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-out forwards',
+                        'slide-up': 'slideUp 0.5s ease-out forwards',
+                        'spin': 'spin 1s linear infinite'
+                    },
+                    keyframes: {
+                        fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+                        slideUp: { '0%': { opacity: '0', transform: 'translateY(20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
+                        spin: { '0%': { transform: 'rotate(0deg)' }, '100%': { transform: 'rotate(360deg)' } }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Icons & Charts -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(156, 163, 175, 0.3); border-radius: 10px; }
+        .dark ::-webkit-scrollbar-thumb { background: rgba(156, 163, 175, 0.2); }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(156, 163, 175, 0.5); }
+
+        /* Utilities */
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .dark .glass {
+            background: rgba(28, 28, 30, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .card {
+            background-color: var(--tw-colors-brand-cardLight);
+            border: 1px solid var(--tw-colors-brand-borderLight);
+            border-radius: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+            transition: all 0.3s ease;
+        }
+        .dark .card {
+            background-color: var(--tw-colors-brand-cardDark);
+            border: 1px solid var(--tw-colors-brand-borderDark);
+            box-shadow: none;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 0.625rem 1rem;
+            border-radius: 0.75rem;
+            background-color: #F3F4F6;
+            border: 1px solid transparent;
+            color: #111827;
+            outline: none;
+            transition: all 0.2s;
+        }
+        .dark .input-field {
+            background-color: #2C2C2E;
+            color: #FFFFFF;
+        }
+        .input-field:focus {
+            border-color: #0A84FF;
+            box-shadow: 0 0 0 2px rgba(10, 132, 255, 0.2);
+        }
+
+        .btn-primary {
+            background-color: #0A84FF;
+            color: white;
+            padding: 0.625rem 1.25rem;
+            border-radius: 0.75rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(10, 132, 255, 0.25);
+        }
+        .btn-primary:hover { background-color: #0070E0; transform: translateY(-1px); }
+        .btn-primary:active { transform: translateY(1px); }
+        
+        .btn-primary:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Checkbox styling */
+        .custom-checkbox input:checked + div {
+            background-color: #0A84FF;
+            border-color: #0A84FF;
+        }
+        
+        /* Toast Notifications */
+        #toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .toast {
+            background-color: #1C1C1E;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideUp 0.3s ease-out forwards;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .light .toast {
+            background-color: white;
+            color: #111827;
+            border: 1px solid #E5E7EB;
+        }
+        
+        /* Discipline Circle Animation */
+        .circle-progress {
+            transition: stroke-dashoffset 1.5s ease-out;
+        }
+        
+        /* Loading Overlay */
+        #global-loader {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #global-loader.hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-brand-bg text-gray-900 dark:bg-brand-dark dark:text-white transition-colors duration-300 antialiased overflow-hidden selection:bg-brand-blue selection:text-white">
+
+    <div id="global-loader" class="hidden flex-col gap-4">
+        <i data-lucide="loader-2" class="w-10 h-10 text-brand-blue animate-spin"></i>
+        <p class="text-white font-medium" id="loader-text">Loading...</p>
+    </div>
+
+    <!-- AUTHENTICATION VIEW -->
+    <div id="auth-view" class="min-h-screen flex items-center justify-center p-4 relative z-50 bg-brand-bg dark:bg-brand-dark transition-colors duration-300">
+        <!-- Background Orbs -->
+        <div class="absolute inset-0 overflow-hidden pointer-events-none">
+            <div class="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] rounded-full bg-[#0A84FF]/10 blur-[120px]"></div>
+            <div class="absolute bottom-[0%] -right-[10%] w-[50%] h-[50%] rounded-full bg-purple-500/10 blur-[120px]"></div>
+        </div>
+
+        <div class="glass w-full max-w-md p-8 sm:p-10 rounded-3xl relative z-10 shadow-2xl animate-fade-in">
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-bold tracking-tight mb-2">NEELX<span class="font-light text-brand-blue">Journal</span></h1>
+                <p class="text-gray-500 dark:text-gray-400 italic text-sm">"Discipline Builds Profits."</p>
+            </div>
+
+            <form id="auth-form" class="space-y-5">
+                <div id="register-fields" class="hidden space-y-5">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Full Name</label>
+                        <input type="text" id="reg-name" class="input-field" placeholder="Alex Trader">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
+                    <input type="email" id="auth-email" class="input-field" placeholder="trader@example.com" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Password</label>
+                    <input type="password" id="auth-password" class="input-field" placeholder="••••••••" required>
+                </div>
+
+                <button type="submit" class="btn-primary w-full py-3 mt-4 text-base" id="auth-submit-btn">
+                    Log In
+                </button>
+            </form>
+
+            <div class="mt-6 flex flex-col items-center gap-3 text-sm">
+                <button type="button" id="toggle-auth-mode" class="text-gray-500 dark:text-gray-400 hover:text-brand-blue transition-colors">
+                    Don't have an account? Create one
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN APPLICATION VIEW -->
+    <div id="app-view" class="hidden h-screen flex relative">
+        
+        <!-- Sidebar -->
+        <aside class="w-64 border-r border-brand-borderLight dark:border-brand-borderDark bg-white dark:bg-brand-cardDark hidden md:flex flex-col z-20 transition-colors duration-300">
+            <div class="p-6">
+                <h1 class="text-xl font-bold tracking-tight text-gray-900 dark:text-white">
+                    NEELX<span class="font-light text-brand-blue">Journal</span>
+                </h1>
+                <p class="text-xs text-gray-500 mt-1 font-medium">Trade Less. Execute Better.</p>
+            </div>
+            
+            <nav class="flex-1 px-4 py-2 space-y-1.5 overflow-y-auto" id="sidebar-nav">
+                <button data-view="dashboard" class="nav-item w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 bg-brand-blue/10 text-brand-blue font-medium">
+                    <i data-lucide="pie-chart" class="w-5 h-5"></i><span>Dashboard</span>
+                </button>
+                <button data-view="journal" class="nav-item w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#2C2C2E] hover:text-gray-900 dark:hover:text-white font-medium group">
+                    <i data-lucide="book-open" class="w-5 h-5 group-hover:text-gray-900 dark:group-hover:text-white"></i><span>Journal</span>
+                </button>
+                <button data-view="new-trade" class="nav-item w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#2C2C2E] hover:text-gray-900 dark:hover:text-white font-medium group">
+                    <i data-lucide="plus-circle" class="w-5 h-5 group-hover:text-gray-900 dark:group-hover:text-white"></i><span>New Trade</span>
+                </button>
+                <button data-view="discipline" class="nav-item w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#2C2C2E] hover:text-gray-900 dark:hover:text-white font-medium group">
+                    <i data-lucide="target" class="w-5 h-5 group-hover:text-gray-900 dark:group-hover:text-white text-brand-blue"></i><span class="text-brand-blue">Discipline</span>
+                </button>
+            </nav>
+
+            <div class="p-4 border-t border-brand-borderLight dark:border-brand-borderDark">
+                <button id="logout-btn" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 text-gray-600 dark:text-gray-400 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 font-medium">
+                    <i data-lucide="log-out" class="w-5 h-5"></i><span>Logout</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 flex flex-col h-screen overflow-hidden relative">
+            
+            <!-- Top Navbar -->
+            <header class="h-16 border-b border-brand-borderLight dark:border-brand-borderDark bg-white/80 dark:bg-brand-cardDark/80 backdrop-blur-md flex items-center justify-between px-6 z-10 transition-colors duration-300">
+                <div class="flex items-center space-x-4 flex-1">
+                    <!-- Mobile Menu Btn -->
+                    <button class="md:hidden p-2 text-gray-500 hover:text-gray-900 dark:hover:text-white">
+                        <i data-lucide="menu" class="w-5 h-5"></i>
+                    </button>
+                    <!-- Search -->
+                    <div class="relative w-full max-w-md hidden sm:block group">
+                        <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-brand-blue transition-colors"></i>
+                        <input type="text" placeholder="Search trades instantly..." class="w-full pl-9 pr-4 py-2 bg-gray-100 dark:bg-[#2C2C2E] border-none rounded-full text-sm focus:ring-2 focus:ring-brand-blue outline-none text-gray-900 dark:text-white transition-all">
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <button class="p-2 text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-full transition-colors relative">
+                        <i data-lucide="bell" class="w-5 h-5"></i>
+                    </button>
+                    <button id="theme-toggle" class="p-2 text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-full transition-colors">
+                        <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
+                        <i data-lucide="moon" class="w-5 h-5 block dark:hidden"></i>
+                    </button>
+                    <div class="h-9 w-9 rounded-full bg-gradient-to-tr from-brand-blue to-purple-500 p-[2px] cursor-pointer hover:scale-105 transition-transform">
+                        <div class="h-full w-full rounded-full bg-white dark:bg-brand-cardDark flex items-center justify-center overflow-hidden">
+                            <span id="nav-user-initial" class="text-sm font-bold text-gray-900 dark:text-white">U</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Scrollable View Container -->
+            <div class="flex-1 overflow-y-auto p-4 sm:p-6 md:p-10 scroll-smooth pb-24">
+                <div class="max-w-6xl mx-auto h-full relative" id="views-container">
+                    <!-- Views will be injected/toggled here -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container"></div>
+
+    <template id="tpl-dashboard">
+        <div class="space-y-8 animate-slide-up">
+            <div>
+                <h2 class="text-2xl font-semibold mb-1">Dashboard</h2>
+                <p class="text-gray-500 dark:text-gray-400">Overview of your performance.</p>
+            </div>
+
+            <!-- KPI Grid -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+                <div class="card p-5 flex flex-col justify-between">
+                    <div class="flex justify-between items-start mb-2">
+                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Trades</p>
+                        <div class="p-1.5 bg-gray-100 dark:bg-[#2C2C2E] rounded-lg"><i data-lucide="activity" class="w-4 h-4 text-gray-500"></i></div>
+                    </div>
+                    <p class="text-3xl font-bold text-gray-900 dark:text-white" id="dash-total">0</p>
+                </div>
+                
+                <div class="card p-5 flex flex-col justify-between">
+                    <div class="flex justify-between items-start mb-2">
+                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Win Rate</p>
+                        <div class="p-1.5 bg-blue-50 dark:bg-brand-blue/10 rounded-lg"><i data-lucide="target" class="w-4 h-4 text-brand-blue"></i></div>
+                    </div>
+                    <p class="text-3xl font-bold text-gray-900 dark:text-white" id="dash-winrate">0%</p>
+                    <div class="w-full bg-gray-200 dark:bg-[#2C2C2E] rounded-full h-1.5 mt-3">
+                        <div class="bg-brand-blue h-1.5 rounded-full transition-all duration-1000" id="dash-winrate-bar" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div class="card p-5 flex flex-col justify-between relative overflow-hidden group">
+                    <div class="absolute inset-0 bg-gradient-to-br from-green-500/5 to-transparent pointer-events-none group-hover:from-green-500/10 transition-colors"></div>
+                    <div class="flex justify-between items-start mb-2 relative z-10">
+                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Net R</p>
+                        <div class="p-1.5 bg-green-50 dark:bg-green-500/10 rounded-lg"><i data-lucide="trending-up" class="w-4 h-4 text-green-500"></i></div>
+                    </div>
+                    <p class="text-3xl font-bold text-green-600 dark:text-green-400 relative z-10" id="dash-netr">0.00R</p>
+                </div>
+
+                <div class="card p-5 flex flex-col justify-between relative overflow-hidden border-brand-blue/20 shadow-[0_0_15px_rgba(10,132,255,0.1)]">
+                    <div class="absolute inset-0 bg-gradient-to-br from-brand-blue/10 to-transparent pointer-events-none"></div>
+                    <div class="flex justify-between items-start mb-2 relative z-10">
+                        <p class="text-sm font-medium text-brand-blue">Discipline Score</p>
+                        <div class="p-1.5 bg-brand-blue/20 rounded-lg"><i data-lucide="check-circle" class="w-4 h-4 text-brand-blue"></i></div>
+                    </div>
+                    <p class="text-3xl font-bold text-brand-blue relative z-10" id="dash-discipline">0%</p>
+                </div>
+            </div>
+
+            <!-- Charts Area -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="card p-6 lg:col-span-2 min-h-[350px] flex flex-col">
+                    <h3 class="font-semibold mb-4 text-gray-900 dark:text-white">Performance Curve (R)</h3>
+                    <div class="flex-1 relative w-full h-full">
+                        <canvas id="equityChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="card p-6 flex flex-col">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-semibold text-gray-900 dark:text-white">Recent Executions</h3>
+                        <button class="text-xs text-brand-blue hover:underline" onclick="switchView('journal')">View All</button>
+                    </div>
+                    <div class="space-y-3 flex-1 overflow-y-auto pr-2" id="dash-recent-trades">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <template id="tpl-new-trade">
+        <div class="max-w-4xl mx-auto space-y-6 animate-slide-up">
+            <div>
+                <h2 class="text-2xl font-semibold mb-1">Log Execution</h2>
+                <p class="text-gray-500 dark:text-gray-400">Document your trade accurately. Honesty is your edge.</p>
+            </div>
+
+            <form id="form-new-trade" class="space-y-6">
+                <div class="card p-6">
+                    <h3 class="text-lg font-medium mb-4 pb-2 border-b border-gray-100 dark:border-[#2C2C2E] text-gray-900 dark:text-white flex items-center gap-2">
+                        <i data-lucide="file-text" class="w-5 h-5 text-brand-blue"></i> Trade Details
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date</label>
+                            <input type="date" name="date" class="input-field" required id="nt-date">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Session</label>
+                            <select name="session" class="input-field" required>
+                                <option value="" disabled selected>Select...</option>
+                                <option>London</option><option>New York</option><option>Asian</option><option>Sydney</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Pair</label>
+                            <input type="text" name="pair" class="input-field" placeholder="EUR/USD" required>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Direction</label>
+                            <select name="direction" class="input-field calc-rr" required>
+                                <option value="" disabled selected>Select...</option>
+                                <option>Buy</option><option>Sell</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Setup</label>
+                            <select name="setup" class="input-field" required>
+                                <option value="" disabled selected>Select...</option>
+                                <option>TJL 1</option><option>TJL 2</option><option>QML</option><option>RBS</option><option>SBR</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Bias</label>
+                            <select name="bias" class="input-field" required>
+                                <option value="" disabled selected>Select...</option>
+                                <option>Bullish</option><option>Bearish</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Entry Price</label>
+                            <input type="number" step="any" name="entry" class="input-field calc-rr" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Stop Loss</label>
+                            <input type="number" step="any" name="sl" class="input-field calc-rr" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Take Profit</label>
+                            <input type="number" step="any" name="tp" class="input-field calc-rr" required>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Risk %</label>
+                            <input type="number" step="0.1" name="risk" value="1.0" class="input-field" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Est. Reward/Risk</label>
+                            <div class="px-4 py-2.5 bg-gray-100 dark:bg-[#151517] rounded-xl font-mono text-gray-500 border border-transparent dark:border-[#2C2C2E] flex items-center h-[42px]" id="nt-rr-display">
+                                1 : 0.00
+                            </div>
+                            <input type="hidden" name="rr" id="nt-rr-val" value="0">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Result</label>
+                            <select name="result" class="input-field" required>
+                                <option value="" disabled selected>Select...</option>
+                                <option value="Win">Win</option><option value="Loss">Loss</option><option value="Breakeven">Breakeven</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Net R (Actual Profit/Loss)</label>
+                            <input type="number" step="0.1" name="netR" class="input-field" placeholder="e.g. 2.5 or -1" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="card p-6">
+                        <h3 class="text-lg font-medium mb-4 pb-2 border-b border-gray-100 dark:border-[#2C2C2E] text-gray-900 dark:text-white flex items-center gap-2">
+                            <i data-lucide="check-square" class="w-5 h-5 text-brand-blue"></i> Trading Plan Checklist
+                        </h3>
+                        <div class="space-y-3" id="checklist-container">
+                            <!-- Injected by JS -->
+                        </div>
+                    </div>
+
+                    <div class="card p-6 flex flex-col space-y-5">
+                        <h3 class="text-lg font-medium mb-1 pb-2 border-b border-gray-100 dark:border-[#2C2C2E] text-gray-900 dark:text-white flex items-center gap-2">
+                            <i data-lucide="brain" class="w-5 h-5 text-brand-blue"></i> Psychology & Review
+                        </h3>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Emotion Before Entry</label>
+                            <select name="emotion" class="input-field" required>
+                                <option value="" disabled selected>Select...</option>
+                                <option>Disciplined</option><option>Confident</option><option>Calm</option><option>Fear</option><option>Greedy</option><option>FOMO</option><option>Angry</option>
+                            </select>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-[#151517] rounded-xl border border-gray-100 dark:border-[#2C2C2E]">
+                            <span class="text-sm font-medium text-gray-900 dark:text-white">Followed Trading Plan entirely?</span>
+                            <div class="flex space-x-2">
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="followedPlan" value="true" class="peer sr-only" checked>
+                                    <div class="px-4 py-1.5 rounded-lg text-sm font-medium transition-colors bg-gray-200 text-gray-500 dark:bg-gray-800 peer-checked:bg-green-500 peer-checked:text-white">Yes</div>
+                                </label>
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="followedPlan" value="false" class="peer sr-only">
+                                    <div class="px-4 py-1.5 rounded-lg text-sm font-medium transition-colors bg-gray-200 text-gray-500 dark:bg-gray-800 peer-checked:bg-red-500 peer-checked:text-white">No</div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="flex-1 flex flex-col">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Lessons Learned</label>
+                            <textarea name="lesson" class="input-field flex-1 resize-none min-h-[100px]" placeholder="What did you do well? What needs improvement? Be critical." required></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-4 pt-4 border-t border-gray-200 dark:border-[#2C2C2E]">
+                    <div class="flex items-center gap-4 w-full sm:w-auto"></div>
+                    <button type="submit" class="btn-primary w-full sm:w-auto px-8 py-3">
+                        <i data-lucide="save" class="w-4 h-4 mr-2"></i> Save Execution
+                    </button>
+                </div>
+            </form>
+        </div>
+    </template>
+
+    <template id="tpl-journal">
+        <div class="space-y-6 animate-slide-up h-full flex flex-col">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0">
+                <div>
+                    <h2 class="text-2xl font-semibold mb-1">Trading Journal</h2>
+                    <p class="text-gray-500 dark:text-gray-400">Review all your past executions.</p>
+                </div>
+                <div class="flex items-center space-x-3 w-full sm:w-auto">
+                    <div class="relative flex-1 sm:w-64 group">
+                        <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-brand-blue transition-colors"></i>
+                        <input type="text" id="journal-search" placeholder="Search pair, setup..." class="w-full pl-9 pr-4 py-2.5 bg-white dark:bg-[#1C1C1E] border border-gray-200 dark:border-[#2C2C2E] rounded-xl text-sm focus:ring-2 focus:ring-brand-blue outline-none transition-all shadow-sm">
+                    </div>
+                </div>
+            </div>
+
+            <div class="card flex-1 overflow-hidden flex flex-col">
+                <div class="overflow-x-auto flex-1 p-2">
+                    <table class="w-full text-left text-sm whitespace-nowrap">
+                        <thead class="bg-gray-50 dark:bg-[#2C2C2E]/50 text-gray-500 dark:text-gray-400 uppercase tracking-wider sticky top-0 z-10 rounded-t-lg">
+                            <tr>
+                                <th class="px-6 py-4 font-medium border-b border-gray-100 dark:border-[#2C2C2E]">Date</th>
+                                <th class="px-6 py-4 font-medium border-b border-gray-100 dark:border-[#2C2C2E]">Pair / Session</th>
+                                <th class="px-6 py-4 font-medium border-b border-gray-100 dark:border-[#2C2C2E]">Setup</th>
+                                <th class="px-6 py-4 font-medium border-b border-gray-100 dark:border-[#2C2C2E]">Result</th>
+                                <th class="px-6 py-4 font-medium border-b border-gray-100 dark:border-[#2C2C2E]">Net R</th>
+                                <th class="px-6 py-4 font-medium border-b border-gray-100 dark:border-[#2C2C2E]">Discipline</th>
+                            </tr>
+                        </thead>
+                        <tbody id="journal-tbody" class="divide-y divide-gray-100 dark:divide-[#2C2C2E] text-gray-700 dark:text-gray-300">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </template>
+    
+    <template id="tpl-discipline">
+        <div class="space-y-6 animate-slide-up">
+            <div>
+                <h2 class="text-2xl font-semibold mb-1">Discipline Center</h2>
+                <p class="text-gray-500 dark:text-gray-400">Track your psychological edge.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="card p-8 flex flex-col items-center justify-center min-h-[300px]">
+                    <div class="relative w-48 h-48">
+                        <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                            <!-- Background Circle -->
+                            <circle cx="50" cy="50" r="40" stroke="currentColor" stroke-width="8" fill="transparent" class="text-gray-200 dark:text-[#2C2C2E]"/>
+                            <!-- Progress Circle -->
+                            <circle cx="50" cy="50" r="40" stroke="currentColor" stroke-width="8" fill="transparent"
+                                stroke-dasharray="251.2" stroke-dashoffset="251.2"
+                                class="text-brand-blue circle-progress" id="disc-circle"/>
+                        </svg>
+                        <div class="absolute inset-0 flex flex-col items-center justify-center">
+                            <span class="text-4xl font-bold text-gray-900 dark:text-white" id="disc-score-text">0%</span>
+                            <span class="text-xs text-gray-500">Average Score</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card p-6 flex flex-col justify-center">
+                    <h3 class="font-semibold mb-4 text-gray-900 dark:text-white">Recent Adherence</h3>
+                    <div class="space-y-4" id="disc-history">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <script>
+        // State
+        let state = {
+            user: null, // {id, name, email}
+            trades: [],
+            isRegistering: false
+        };
+
+        // Your Live Google Apps Script Link
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbzj9jr3-lWjV96r7yqBBpVlD3JPFUF1WWgHHMU0tesPJIR2tTLLBeO9YQlpsSNK2TG5DQ/exec';
+
+        // Universal API Caller for both Google Apps Script and External hosting
+        async function apiCall(action, payload) {
+            return new Promise((resolve, reject) => {
+                if (typeof google !== 'undefined' && google.script) {
+                    if (action === 'authenticateUser') {
+                        google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).authenticateUser(payload.email, payload.password, payload.name, payload.isRegistering);
+                    } else if (action === 'getTrades') {
+                        google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).getTrades(payload.userId);
+                    } else if (action === 'saveTrade') {
+                        google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).saveTrade(payload.userId, payload.trade);
+                    }
+                } else {
+                    // Uses your provided link to fetch/save data if hosted externally
+                    fetch(GAS_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify({ action, payload })
+                    })
+                    .then(res => res.json())
+                    .then(data => action === 'getTrades' ? resolve(data.trades) : resolve(data))
+                    .catch(reject);
+                }
+            });
+        }
+
+        const checklistItems = [
+            { id: "chk1", label: "Higher Timeframe bias aligned?" },
+            { id: "chk2", label: "Price at Key POI/Level?" },
+            { id: "chk3", label: "Confirmation structure formed?" },
+            { id: "chk4", label: "Volume/Momentum supports entry?" },
+            { id: "chk5", label: "Risk strictly <= 1%?" },
+            { id: "chk6", label: "No upcoming high-impact news?" }
+        ];
+
+        // Utility: Toast notifications
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            
+            const icon = type === 'success' 
+                ? '<i data-lucide="check-circle" class="w-5 h-5 text-green-500"></i>'
+                : '<i data-lucide="alert-circle" class="w-5 h-5 text-red-500"></i>';
+                
+            toast.innerHTML = `${icon} <span class="font-medium">${message}</span>`;
+            container.appendChild(toast);
+            lucide.createIcons();
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideUp 0.3s ease-in reverse forwards';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function showLoader(text) {
+            document.getElementById('loader-text').innerText = text;
+            document.getElementById('global-loader').classList.remove('hidden');
+        }
+
+        function hideLoader() {
+            document.getElementById('global-loader').classList.add('hidden');
+        }
+
+        // Authentication Logic
+        const authView = document.getElementById('auth-view');
+        const appView = document.getElementById('app-view');
+        const toggleAuthBtn = document.getElementById('toggle-auth-mode');
+        const regFields = document.getElementById('register-fields');
+        const authSubmitBtn = document.getElementById('auth-submit-btn');
+        const authForm = document.getElementById('auth-form');
+
+        toggleAuthBtn.addEventListener('click', () => {
+            state.isRegistering = !state.isRegistering;
+            regFields.classList.toggle('hidden');
+            authSubmitBtn.innerText = state.isRegistering ? 'Create Account' : 'Log In';
+            toggleAuthBtn.innerText = state.isRegistering ? 'Already have an account? Log In' : 'Don\'t have an account? Create one';
+        });
+
+        authForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('auth-email').value;
+            const password = document.getElementById('auth-password').value;
+            const name = state.isRegistering ? document.getElementById('reg-name').value : '';
+
+            showLoader(state.isRegistering ? 'Creating account...' : 'Logging in...');
+            authSubmitBtn.disabled = true;
+
+            try {
+                const res = await apiCall('authenticateUser', { email, password, name, isRegistering: state.isRegistering });
+                if (res.success) {
+                    handleSuccessfulAuth(res.user);
+                } else {
+                    hideLoader();
+                    authSubmitBtn.disabled = false;
+                    showToast(res.message, 'error');
+                }
+            } catch (err) {
+                hideLoader();
+                authSubmitBtn.disabled = false;
+                showToast('Connection error. Try again.', 'error');
+            }
+        });
+
+        async function handleSuccessfulAuth(user) {
+            state.user = user;
+            document.getElementById('nav-user-initial').innerText = user.name.charAt(0).toUpperCase();
+            
+            showLoader('Fetching your data...');
+            
+            try {
+                const trades = await apiCall('getTrades', { userId: user.id });
+                state.trades = trades || [];
+                finalizeLogin();
+            } catch (err) {
+                state.trades = [];
+                finalizeLogin();
+                showToast('Error fetching trades', 'error');
+            }
+        }
+        
+        function finalizeLogin() {
+            hideLoader();
+            authView.classList.add('hidden');
+            appView.classList.remove('hidden');
+            showToast(`Welcome back, ${state.user.name.split(' ')[0]}`);
+            switchView('dashboard');
+            lucide.createIcons();
+        }
+
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            state.user = null;
+            state.trades = [];
+            appView.classList.add('hidden');
+            authView.classList.remove('hidden');
+            document.getElementById('auth-email').value = '';
+            document.getElementById('auth-password').value = '';
+        });
+
+        // Navigation & View Rendering
+        const viewsContainer = document.getElementById('views-container');
+        const navItems = document.querySelectorAll('.nav-item');
+        let currentChart = null;
+
+        navItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const view = item.getAttribute('data-view');
+                switchView(view);
+                
+                // Update active state
+                navItems.forEach(nav => {
+                    nav.classList.remove('bg-brand-blue/10', 'text-brand-blue');
+                    nav.classList.add('text-gray-600', 'dark:text-gray-400');
+                    const span = nav.querySelector('span');
+                    const icon = nav.querySelector('i');
+                    if(span) span.classList.remove('text-brand-blue');
+                    if(icon) icon.classList.remove('text-brand-blue');
+                });
+                
+                item.classList.add('bg-brand-blue/10', 'text-brand-blue');
+                item.classList.remove('text-gray-600', 'dark:text-gray-400');
+                const span = item.querySelector('span');
+                const icon = item.querySelector('i');
+                if(span) span.classList.add('text-brand-blue');
+                if(icon) icon.classList.add('text-brand-blue');
+            });
+        });
+
+        function switchView(viewName) {
+            viewsContainer.innerHTML = '';
+            const tpl = document.getElementById(`tpl-${viewName}`);
+            if (tpl) {
+                viewsContainer.appendChild(tpl.content.cloneNode(true));
+                lucide.createIcons();
+                
+                if (viewName === 'dashboard') initDashboard();
+                if (viewName === 'new-trade') initNewTradeForm();
+                if (viewName === 'journal') initJournal();
+                if (viewName === 'discipline') initDiscipline();
+            }
+        }
+
+        function initDashboard() {
+            if (state.trades.length === 0) {
+                document.getElementById('dash-total').innerText = '0';
+                document.getElementById('dash-winrate').innerText = '0%';
+                document.getElementById('dash-netr').innerText = '0.00R';
+                document.getElementById('dash-discipline').innerText = '0%';
+                if (currentChart) currentChart.destroy();
+                document.getElementById('dash-recent-trades').innerHTML = '<p class="text-gray-500 text-sm">No trades logged yet.</p>';
+                return;
+            }
+
+            const wins = state.trades.filter(t => t.result === 'Win').length;
+            const winRate = Math.round((wins / state.trades.length) * 100);
+            const totalR = state.trades.reduce((acc, curr) => acc + (parseFloat(curr.netR) || 0), 0).toFixed(2);
+            const avgDisc = Math.round(state.trades.reduce((acc, curr) => acc + (parseFloat(curr.disciplineScore) || 0), 0) / state.trades.length);
+
+            document.getElementById('dash-total').innerText = state.trades.length;
+            document.getElementById('dash-winrate').innerText = `${winRate}%`;
+            document.getElementById('dash-winrate-bar').style.width = `${winRate}%`;
+            document.getElementById('dash-netr').innerText = `${totalR}R`;
+            document.getElementById('dash-netr').className = `text-3xl font-bold relative z-10 ${totalR >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`;
+            document.getElementById('dash-discipline').innerText = `${avgDisc}%`;
+
+            // Render Recent Trades
+            const recentContainer = document.getElementById('dash-recent-trades');
+            recentContainer.innerHTML = '';
+            state.trades.slice(0, 4).forEach(t => {
+                const isWin = t.result === 'Win';
+                const isLoss = t.result === 'Loss';
+                let resColor = 'text-gray-500 bg-gray-100 dark:bg-gray-800';
+                if(isWin) resColor = 'text-green-600 bg-green-50 dark:bg-green-500/10 dark:text-green-400';
+                if(isLoss) resColor = 'text-red-600 bg-red-50 dark:bg-red-500/10 dark:text-red-400';
+
+                recentContainer.innerHTML += `
+                    <div class="flex items-center justify-between p-3 rounded-xl border border-gray-100 dark:border-[#2C2C2E] bg-gray-50 dark:bg-[#151517]">
+                        <div>
+                            <p class="font-semibold text-sm text-gray-900 dark:text-white">${t.pair} <span class="text-xs font-normal text-gray-500 ml-1">${t.direction}</span></p>
+                            <p class="text-xs text-gray-500">${t.date}</p>
+                        </div>
+                        <div class="px-2.5 py-1 rounded-md text-xs font-medium ${resColor}">
+                            ${parseFloat(t.netR) > 0 ? '+' : ''}${t.netR}R
+                        </div>
+                    </div>
+                `;
+            });
+
+            // Render Chart
+            renderChart();
+        }
+
+        function renderChart() {
+            const ctx = document.getElementById('equityChart').getContext('2d');
+            if (currentChart) currentChart.destroy();
+
+            let cumulative = 0;
+            // clone and sort strictly ascending for the chart
+            const sortedTrades = [...state.trades].sort((a, b) => new Date(a.date) - new Date(b.date));
+            const dataPts = sortedTrades.map(t => {
+                cumulative += (parseFloat(t.netR) || 0);
+                return cumulative;
+            });
+            // insert a starting 0 point
+            dataPts.unshift(0);
+            
+            const labels = sortedTrades.map(t => t.date);
+            labels.unshift('Start');
+
+            const isDark = document.documentElement.classList.contains('dark');
+            const gridColor = isDark ? '#2C2C2E' : '#F2F2F7';
+            const textColor = isDark ? '#9CA3AF' : '#6B7280';
+
+            currentChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Cumulative R',
+                        data: dataPts,
+                        borderColor: '#0A84FF',
+                        backgroundColor: 'rgba(10, 132, 255, 0.1)',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#0A84FF',
+                        pointBorderColor: isDark ? '#1C1C1E' : '#FFFFFF',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { display: false, drawBorder: false }, ticks: { color: textColor, maxTicksLimit: 7 } },
+                        y: { grid: { color: gridColor, drawBorder: false }, ticks: { color: textColor } }
+                    }
+                }
+            });
+        }
+
+        function initNewTradeForm() {
+            // Set today's date
+            document.getElementById('nt-date').valueAsDate = new Date();
+
+            // Populate Checklist
+            const checklistContainer = document.getElementById('checklist-container');
+            checklistContainer.innerHTML = checklistItems.map(item => `
+                <label class="flex items-center space-x-3 cursor-pointer group custom-checkbox">
+                    <input type="checkbox" name="${item.id}" class="peer sr-only">
+                    <div class="w-5 h-5 rounded border-2 border-gray-300 dark:border-gray-600 flex items-center justify-center transition-colors group-hover:border-brand-blue peer-checked:bg-brand-blue peer-checked:border-brand-blue">
+                        <i data-lucide="check" class="w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100 transition-opacity"></i>
+                    </div>
+                    <span class="text-sm text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">${item.label}</span>
+                </label>
+            `).join('');
+            lucide.createIcons();
+
+            // Attach RR Calculator
+            const calcInputs = document.querySelectorAll('.calc-rr');
+            calcInputs.forEach(input => input.addEventListener('input', calculateRR));
+
+            // Form Submit handler
+            document.getElementById('form-new-trade').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const formData = new FormData(e.target);
+                
+                // Calculate Discipline Score
+                let checksPassed = 0;
+                let checklistData = {};
+                checklistItems.forEach(item => {
+                    const checked = formData.get(item.id) !== null;
+                    checklistData[item.id] = checked;
+                    if(checked) checksPassed++;
+                });
+                const followedPlan = formData.get('followedPlan') === 'true';
+                if (followedPlan) checksPassed += 2; // Bonus weight for following plan overall
+                
+                const totalPossible = checklistItems.length + 2;
+                const discScore = Math.round((checksPassed / totalPossible) * 100);
+
+                const newTrade = {
+                    date: formData.get('date'),
+                    session: formData.get('session'),
+                    pair: formData.get('pair').toUpperCase(),
+                    direction: formData.get('direction'),
+                    setup: formData.get('setup'),
+                    bias: formData.get('bias'),
+                    entry: formData.get('entry'),
+                    sl: formData.get('sl'),
+                    tp: formData.get('tp'),
+                    risk: formData.get('risk'),
+                    rr: formData.get('rr') || 0,
+                    result: formData.get('result'),
+                    netR: formData.get('netR'),
+                    emotion: formData.get('emotion'),
+                    followedPlan: followedPlan,
+                    lesson: formData.get('lesson'),
+                    disciplineScore: discScore,
+                    checklist: checklistData
+                };
+
+                const btn = e.target.querySelector('button[type="submit"]');
+                btn.disabled = true;
+                btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 mr-2 animate-spin"></i> Saving...';
+                lucide.createIcons();
+
+                // Save via Live API or GAS native function
+                apiCall('saveTrade', { userId: state.user.id, trade: newTrade })
+                    .then((res) => {
+                        if(res.success) {
+                            state.trades.unshift(res.trade);
+                            showToast('Trade executed and logged!');
+                            switchView('dashboard');
+                            
+                            // update active nav
+                            document.querySelector('[data-view="new-trade"]').classList.remove('bg-brand-blue/10', 'text-brand-blue');
+                            document.querySelector('[data-view="dashboard"]').classList.add('bg-brand-blue/10', 'text-brand-blue');
+                        } else {
+                            showToast('Failed to save: ' + res.message, 'error');
+                            btn.disabled = false;
+                            btn.innerHTML = '<i data-lucide="save" class="w-4 h-4 mr-2"></i> Save Execution';
+                            lucide.createIcons();
+                        }
+                    })
+                    .catch((err) => {
+                        showToast('Server error.', 'error');
+                        btn.disabled = false;
+                        btn.innerHTML = '<i data-lucide="save" class="w-4 h-4 mr-2"></i> Save Execution';
+                        lucide.createIcons();
+                    });
+            });
+        }
+
+        function calculateRR() {
+            const entry = parseFloat(document.querySelector('[name="entry"]').value);
+            const sl = parseFloat(document.querySelector('[name="sl"]').value);
+            const tp = parseFloat(document.querySelector('[name="tp"]').value);
+            const dir = document.querySelector('[name="direction"]').value;
+            
+            if (entry && sl && tp && dir) {
+                let risk = Math.abs(entry - sl);
+                let reward = Math.abs(tp - entry);
+                
+                // Basic validation for direction logic
+                if (dir === 'Buy' && (sl > entry || tp < entry)) return;
+                if (dir === 'Sell' && (sl < entry || tp > entry)) return;
+
+                if (risk > 0) {
+                    let rr = (reward / risk).toFixed(2);
+                    document.getElementById('nt-rr-display').innerText = `1 : ${rr}`;
+                    document.getElementById('nt-rr-val').value = rr;
+                }
+            }
+        }
+
+        function initJournal() {
+            const tbody = document.getElementById('journal-tbody');
+            tbody.innerHTML = '';
+            
+            if(state.trades.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-500">No trades found. Start logging!</td></tr>';
+                return;
+            }
+
+            state.trades.forEach(t => {
+                const isWin = t.result === 'Win';
+                const isLoss = t.result === 'Loss';
+                let resBadge = `<span class="px-2 py-1 rounded text-xs font-medium bg-gray-100 text-gray-600 dark:bg-[#2C2C2E] dark:text-gray-400">BE</span>`;
+                if(isWin) resBadge = `<span class="px-2 py-1 rounded text-xs font-medium bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400">WIN</span>`;
+                if(isLoss) resBadge = `<span class="px-2 py-1 rounded text-xs font-medium bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400">LOSS</span>`;
+
+                const netRClass = parseFloat(t.netR) > 0 ? 'text-green-500' : (parseFloat(t.netR) < 0 ? 'text-red-500' : 'text-gray-500');
+                const discColor = t.disciplineScore >= 80 ? 'text-green-500' : (t.disciplineScore >= 50 ? 'text-yellow-500' : 'text-red-500');
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-gray-50 dark:hover:bg-[#2C2C2E]/40 transition-colors cursor-pointer">
+                        <td class="px-6 py-4">${t.date}</td>
+                        <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">
+                            ${t.pair} <span class="text-xs text-gray-500 ml-2 font-normal">${t.session}</span>
+                        </td>
+                        <td class="px-6 py-4">${t.setup}</td>
+                        <td class="px-6 py-4">${resBadge}</td>
+                        <td class="px-6 py-4 font-mono font-medium ${netRClass}">${parseFloat(t.netR)>0?'+':''}${parseFloat(t.netR).toFixed(2)}R</td>
+                        <td class="px-6 py-4 font-medium ${discColor}">${t.disciplineScore}%</td>
+                    </tr>
+                `;
+            });
+            
+            // Search functionality
+            const searchInput = document.getElementById('journal-search');
+            if(searchInput) {
+                searchInput.addEventListener('input', (e) => {
+                    const term = e.target.value.toLowerCase();
+                    const rows = tbody.querySelectorAll('tr');
+                    rows.forEach(row => {
+                        const text = row.innerText.toLowerCase();
+                        row.style.display = text.includes(term) ? '' : 'none';
+                    });
+                });
+            }
+        }
+
+        function initDiscipline() {
+            if(state.trades.length === 0) return;
+            
+            const scores = state.trades.map(t => parseFloat(t.disciplineScore) || 0);
+            const avgDisc = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
+            
+            // Animate Circle
+            const circle = document.getElementById('disc-circle');
+            const circumference = 2 * Math.PI * 40; // r=40
+            const offset = circumference - (avgDisc / 100) * circumference;
+            
+            document.getElementById('disc-score-text').innerText = `${avgDisc}%`;
+            
+            // Slight delay to ensure DOM is ready for animation
+            setTimeout(() => {
+                if(circle) circle.style.strokeDashoffset = offset;
+            }, 100);
+
+            // History List
+            const historyContainer = document.getElementById('disc-history');
+            historyContainer.innerHTML = '';
+            
+            state.trades.slice(0, 5).forEach(t => {
+                const s = parseFloat(t.disciplineScore) || 0;
+                let colorClass = 'bg-red-500';
+                if (s >= 80) colorClass = 'bg-green-500';
+                else if (s >= 50) colorClass = 'bg-yellow-500';
+                
+                historyContainer.innerHTML += `
+                    <div class="flex items-center justify-between">
+                        <div class="flex flex-col">
+                            <span class="text-sm font-medium text-gray-900 dark:text-white">${t.pair}</span>
+                            <span class="text-xs text-gray-500">${t.date}</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <div class="w-32 h-2 bg-gray-200 dark:bg-[#2C2C2E] rounded-full overflow-hidden">
+                                <div class="h-full ${colorClass}" style="width: ${s}%"></div>
+                            </div>
+                            <span class="text-sm font-bold w-8 text-right">${s}%</span>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // Theme Toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const htmlElement = document.documentElement;
+        
+        themeToggle.addEventListener('click', () => {
+            if (htmlElement.classList.contains('dark')) {
+                htmlElement.classList.remove('dark');
+                htmlElement.classList.add('light');
+            } else {
+                htmlElement.classList.remove('light');
+                htmlElement.classList.add('dark');
+            }
+            if(currentChart) renderChart(); // re-render to update grid colors
+        });
+        
+        // Initialize Icons
+        lucide.createIcons();
+    </script>
+</body>
+</html>
